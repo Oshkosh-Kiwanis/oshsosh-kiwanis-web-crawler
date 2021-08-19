@@ -73,5 +73,6 @@ async fn main() -> Result<(), Box<dyn Error>> {
         )?;
 
         std::fs::write("contest-goals.json", serialized)?;
+        println!("[DONE]");
     }
 }

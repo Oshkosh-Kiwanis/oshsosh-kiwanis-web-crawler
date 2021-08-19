@@ -106,5 +106,6 @@ async fn main() -> Result<(), Box<dyn Error>> {
         )?;
 
         std::fs::write("top-dogs.json", serialized)?;
+        println!("[DONE]");
     }
 }
