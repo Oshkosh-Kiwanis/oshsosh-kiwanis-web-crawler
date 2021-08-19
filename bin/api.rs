@@ -1,4 +1,5 @@
 use actix_web::{get, Responder, web, App, HttpServer};
+use actix_cors::Cors;
 
 #[get("/goals")]
 async fn get_goals(_path: web::Path<()>) -> impl Responder {
@@ -17,9 +18,15 @@ async fn main() -> std::io::Result<()> {
     let addr = "0.0.0.0:8080";
     println!("[INFO] started server; addr={}", addr);
     HttpServer::new(
-        || App::new()
-            .service(get_goals)
-            .service(get_dogs)
+        || {
+            let cors = Cors::default()
+                .max_age(3600);
+
+            App::new()
+                .wrap(cors)
+                .service(get_goals)
+                .service(get_dogs)
+        }
     )
         .bind(addr)?
         .run()
