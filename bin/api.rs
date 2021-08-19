@@ -20,6 +20,7 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(
         || {
             let cors = Cors::default()
+                .allowed_origin("*")
                 .max_age(3600);
 
             App::new()
