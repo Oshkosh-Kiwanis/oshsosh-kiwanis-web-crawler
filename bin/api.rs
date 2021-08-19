@@ -2,6 +2,7 @@ use actix::{Actor, StreamHandler};
 use actix_web::{web, App, Error, HttpRequest, HttpResponse, HttpServer};
 use actix_web_actors::ws;
 
+use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
 use serde::Serialize;
 
 use oshkosh_kiwanis_web_crawler::{ContestGoal, NewTopDog};
@@ -84,8 +85,14 @@ async fn index(req: HttpRequest, stream: web::Payload) -> Result<HttpResponse, E
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+    let mut builder = SslAcceptor::mozilla_intermediate(SslMethod::tls()).unwrap();
+    builder
+        .set_private_key_file("ssl/key.pem", SslFiletype::PEM)
+        .unwrap();
+    builder.set_certificate_chain_file("ssl/cert.pem").unwrap();
+
     HttpServer::new(|| App::new().route("/ws/", web::get().to(index)))
-        .bind("0.0.0.0:80")?
+        .bind_openssl("0.0.0.0:8888", builder)?
         .run()
         .await
 }
