@@ -19,9 +19,7 @@ async fn main() -> std::io::Result<()> {
     println!("[INFO] started server; addr={}", addr);
     HttpServer::new(
         || {
-            let cors = Cors::default()
-                .allowed_origin("*")
-                .max_age(3600);
+            let cors = Cors::permissive();
 
             App::new()
                 .wrap(cors)
