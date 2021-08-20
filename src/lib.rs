@@ -4,6 +4,7 @@ use serde::{Serialize, Deserialize};
 pub struct Contest {
     pub display_name: String,
     pub page: String,
+    pub match_day: usize,
 }
 
 
@@ -26,7 +27,13 @@ impl Contests {
         Vec::from([
             Contest {
                 display_name: "NEW Top Dog Neenah".into(),
-                page: "newtopdogneenah2022".into()
+                page: "newtopdogneenah2022".into(),
+                match_day: 0
+            },
+            Contest {
+                display_name: "NEW Top Dog Lakeshore".into(),
+                page: "newtopdoglakeshore2022".into(),
+                match_day: 0
             }
         ])
     }

@@ -40,11 +40,13 @@ async fn crawl_site(domain: &str, contest: Contest) -> Result<ContestGoal, Box<d
         .parse::<usize>()
         .unwrap_or(0);
 
+    let match_day = contest.match_day;
+
     Ok(ContestGoal {
         contest,
         raised,
         goal,
-        match_day: 0,
+        match_day,
     })
 }
 
