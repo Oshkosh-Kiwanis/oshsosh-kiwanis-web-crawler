@@ -11,10 +11,10 @@ async fn crawl_site(domain: &str, contest: Contest) -> Result<ContestGoal, Box<d
     // navigate to the search page for the contest,
     // this is where we will grab the top tep results
     let url = format!("{}/{}", domain, contest.page);
-    println!("[INFO] getting url; url={:?}", url);
+    println!("[INFO] getting url; url={:?}", &url);
 
     // get the webapge html
-    let resp  = reqwest::get(url).await?;
+    let resp  = reqwest::get(&url).await?;
     let html = resp.text().await?;
 
     // now we have to parse that html
@@ -30,7 +30,7 @@ async fn crawl_site(domain: &str, contest: Contest) -> Result<ContestGoal, Box<d
         .parse::<usize>()
         .unwrap_or(0);
 
-    let goal= doc.select("#ContentPlaceHolder_divFundraisingMeter > div.goal > span")
+    let goal = doc.select("#ContentPlaceHolder_divFundraisingMeter > div.goal > span")
         .text()
         .chars()
         // make sure that we are only dealing with valid numerical
@@ -40,14 +40,39 @@ async fn crawl_site(domain: &str, contest: Contest) -> Result<ContestGoal, Box<d
         .parse::<usize>()
         .unwrap_or(0);
 
-    let match_day = contest.match_day;
+    let total_entries = get_entries(&url).await?;
+
+    let champ_day = contest.champ_day;
 
     Ok(ContestGoal {
         contest,
         raised,
         goal,
-        match_day,
+        total_entries,
+        champ_day,
     })
+}
+
+async fn get_entries(contest_url: &str) -> Result<usize, Box<dyn Error>> {
+    // get the webapge html
+    let entries_url = format!("{}/search", &contest_url);
+    let resp  = reqwest::get(entries_url).await?;
+    let html = resp.text().await?;
+
+    // now we have to parse that html
+    let doc = Document::try_from(&html)?;
+
+    let total_entries = doc.select("#ContentPlaceHolder_divSearchTitle > span.numEntries")
+        .text()
+        .chars()
+        // make sure that we are only dealing with valid numerical
+        // representation before trying to parse it
+        .filter(|ch| ch.is_digit(10) || *ch == '.')
+        .collect::<String>()
+        .parse::<usize>()
+        .unwrap_or(0);
+
+    return Ok(total_entries);
 }
 
 

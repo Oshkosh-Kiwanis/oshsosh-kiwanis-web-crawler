@@ -1,10 +1,10 @@
 use serde::{Serialize, Deserialize};
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Eq, Ord, PartialEq, PartialOrd)]
 pub struct Contest {
     pub display_name: String,
     pub page: String,
-    pub match_day: usize,
+    pub champ_day: usize,
 }
 
 
@@ -13,9 +13,9 @@ pub struct ContestGoal {
     pub contest: Contest,
     pub goal: usize,
     pub raised: usize,
-    // this is going to be 5,000 because of how the match
-    // day will be operated
-    pub match_day: usize,
+    pub total_entries: usize,
+    // this will usually just be a hardcoded thing
+    pub champ_day: usize,
 }
 
 
@@ -26,20 +26,40 @@ impl Contests {
     pub fn get_all() -> Vec<Contest> {
         Vec::from([
             Contest {
-                display_name: "NEW Top Dog Neenah".into(),
-                page: "newtopdogneenah2022".into(),
-                match_day: 0
+                display_name: "NEW Top Dog Appleton".into(),
+                page: "newtopdogappleton2022".into(),
+                champ_day: 0,
+            },
+            Contest {
+                display_name: "NEW Top Dog Green Bay".into(),
+                page: "newtopdoggreenbay2022".into(),
+                champ_day: 0,
             },
             Contest {
                 display_name: "NEW Top Dog Lakeshore".into(),
                 page: "newtopdoglakeshore2022".into(),
-                match_day: 0
-            }
+                champ_day: 0,
+            },
+            Contest {
+                display_name: "NEW Top Dog Neenah".into(),
+                page: "newtopdogneenah2022".into(),
+                champ_day: 0,
+            },
+            Contest {
+                display_name: "NEW Top Dog Oshkosh".into(),
+                page: "newtopdogoshkosh2022".into(),
+                champ_day: 0,
+            },
+            Contest {
+                display_name: "NEW Top Dog Shawano".into(),
+                page: "newtopdogshawano2022".into(),
+                champ_day: 0,
+            },
         ])
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Eq, Ord, PartialEq, PartialOrd)]
 pub struct NewTopDog {
     // the name of the dog
     pub dog: String,
