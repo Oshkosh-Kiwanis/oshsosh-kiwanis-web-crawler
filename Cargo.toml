@@ -15,7 +15,9 @@ actix = "0.10"
 actix-web = { version = "3" }
 actix-web-actors = "3"
 actix-cors = "0.5.4"
-
+chrono = "0.4"
+cloud-storage = "0.10"
+csv = "1.1.6"
 
 [[bin]]
 name = "get_dogs"
@@ -28,3 +30,7 @@ path = "bin/get_contest_goals.rs"
 [[bin]]
 name = "api"
 path = "bin/api.rs"
+
+[[bin]]
+name = "upload_files"
+path = "bin/upload_files.rs"

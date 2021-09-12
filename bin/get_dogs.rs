@@ -1,11 +1,12 @@
 use std::{convert::TryFrom, error::Error};
 
-use oshkosh_kiwanis_web_crawler::{NewTopDog, Contest, Contests};
+use chrono::Utc;
+use oshkosh_kiwanis_web_crawler::{Contest, Contests, EntryData, EntryDataCSV};
 use tokio::time::{interval, Duration};
 
 use nipper::Document;
 
-async fn crawl_entry_page(domain: &str, webpage: String, contest: Contest) -> Result<NewTopDog, Box<dyn Error>> {
+async fn crawl_entry_page(domain: &str, webpage: String, contest: Contest) -> Result<EntryData, Box<dyn Error>> {
     println!("[INFO] getting url; url={:?}", &webpage);
 
     let resp  = reqwest::get(&webpage).await?;
@@ -36,16 +37,20 @@ async fn crawl_entry_page(domain: &str, webpage: String, contest: Contest) -> Re
         .unwrap()
         .to_string();
 
-    Ok(NewTopDog {
+    let now = Utc::now();
+    let timestamp = now.timestamp();
+
+    Ok(EntryData {
         dog,
         votes,
         contest: contest,
         page: webpage,
         picture: format!("{}{}", domain, picture),
+        timestamp,
     })
 }
 
-async fn crawl_site(domain: &str, contest: Contest) -> Result<Vec<NewTopDog>, Box<dyn Error>> {
+async fn crawl_site(domain: &str, contest: Contest) -> Result<Vec<EntryData>, Box<dyn Error>> {
     // navigate to the search page for the contest,
     // this is where we will grab the top tep results
     let url = format!("{}/{}/search", domain, contest.page);
@@ -93,7 +98,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         interval.tick().await;
         println!("[TICK]");
 
-        let mut results: Vec<NewTopDog> = Vec::new();
+        let mut results: Vec<EntryData> = Vec::new();
         for contest in Contests::get_all() {
             let ret = crawl_site(domain, contest).await?;
 
@@ -104,6 +109,15 @@ async fn main() -> Result<(), Box<dyn Error>> {
         let serialized = serde_json::to_string(
             &results
         )?;
+
+
+        let mut csv_wtr = csv::Writer::from_path("top-dogs.csv")?;
+
+        for result in results.iter() {
+            let record = EntryDataCSV::from_entry(result);
+            csv_wtr.serialize(record)?;
+        }
+        csv_wtr.flush()?;
 
         std::fs::write("top-dogs.json", serialized)?;
         println!("[DONE]");

@@ -9,13 +9,44 @@ pub struct Contest {
 
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct ContestGoal {
+pub struct ContestData {
     pub contest: Contest,
     pub goal: usize,
     pub raised: usize,
+    // Total entries in the contest
     pub total_entries: usize,
     // this will usually just be a hardcoded thing
     pub champ_day: usize,
+    // When this data was captured
+    pub timestamp: i64,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct ContestDataCSV {
+    pub display_name: String,
+    pub page: String,
+    pub goal: usize,
+    pub raised: usize,
+    // Total entries in the contest
+    pub total_entries: usize,
+    // this will usually just be a hardcoded thing
+    pub champ_day: usize,
+    // When this data was captured
+    pub timestamp: i64,
+}
+
+impl ContestDataCSV {
+    pub fn from_contest_data(data: &ContestData) -> ContestDataCSV {
+        ContestDataCSV {
+            display_name: data.contest.display_name.clone(),
+            page: data.contest.page.clone(),
+            goal: data.goal,
+            raised: data.raised,
+            total_entries: data.total_entries,
+            champ_day: data.champ_day,
+            timestamp: data.timestamp,
+        }
+    }
 }
 
 
@@ -60,7 +91,7 @@ impl Contests {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Eq, Ord, PartialEq, PartialOrd)]
-pub struct NewTopDog {
+pub struct EntryData {
     // the name of the dog
     pub dog: String,
     // how many votes the dog got
@@ -73,4 +104,32 @@ pub struct NewTopDog {
     pub page: String,
     // The picture url for the dog
     pub picture: String,
+    // When was this data captured
+    pub timestamp: i64,
+}
+
+
+#[derive(Debug, Serialize, Deserialize, Clone, Eq, Ord, PartialEq, PartialOrd)]
+pub struct EntryDataCSV {
+    pub display_name: String,
+    pub gogophoto_contest_page: String,
+    pub dog: String,
+    pub votes: usize,
+    pub entry_url: String,
+    pub picture: String,
+    pub timestamp: i64,
+}
+
+impl EntryDataCSV {
+    pub fn from_entry(entry: &EntryData) -> EntryDataCSV {
+        EntryDataCSV {
+            display_name: entry.contest.display_name.clone(),
+            gogophoto_contest_page: entry.contest.page.clone(),
+            dog: entry.dog.clone(),
+            votes: entry.votes,
+            entry_url: entry.page.clone(),
+            picture: entry.picture.clone(),
+            timestamp: entry.timestamp,
+        }
+    }
 }

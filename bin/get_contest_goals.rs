@@ -1,13 +1,14 @@
 
 use std::{convert::TryFrom, error::Error};
 
-use oshkosh_kiwanis_web_crawler::{ContestGoal, Contest, Contests};
+use chrono::Utc;
+use oshkosh_kiwanis_web_crawler::{Contest, ContestData, ContestDataCSV, Contests};
 
 use tokio::time::{interval, Duration};
 
 use nipper::Document;
 
-async fn crawl_site(domain: &str, contest: Contest) -> Result<ContestGoal, Box<dyn Error>> {
+async fn crawl_site(domain: &str, contest: Contest) -> Result<ContestData, Box<dyn Error>> {
     // navigate to the search page for the contest,
     // this is where we will grab the top tep results
     let url = format!("{}/{}", domain, contest.page);
@@ -43,13 +44,15 @@ async fn crawl_site(domain: &str, contest: Contest) -> Result<ContestGoal, Box<d
     let total_entries = get_entries(&url).await?;
 
     let champ_day = contest.champ_day;
+    let now = Utc::now();
 
-    Ok(ContestGoal {
+    Ok(ContestData {
         contest,
         raised,
         goal,
         total_entries,
         champ_day,
+        timestamp: now.timestamp(),
     })
 }
 
@@ -87,7 +90,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         interval.tick().await;
         println!("[TICK]");
 
-        let mut results: Vec<ContestGoal> = Vec::new();
+        let mut results: Vec<ContestData> = Vec::new();
         for contest in Contests::get_all() {
             let ret = crawl_site(domain, contest).await?;
 
@@ -98,6 +101,14 @@ async fn main() -> Result<(), Box<dyn Error>> {
         let serialized = serde_json::to_string(
             &results
         )?;
+
+        let mut csv_wtr = csv::Writer::from_path("contest-goals.csv")?;
+
+        for result in results.iter() {
+            let record = ContestDataCSV::from_contest_data(result);
+            csv_wtr.serialize(record)?;
+        }
+        csv_wtr.flush()?;
 
         std::fs::write("contest-goals.json", serialized)?;
         println!("[DONE]");

@@ -2,4 +2,6 @@
 Cargo.lock
 *.log
 *.json
+*.csv
 ssl/
+service-account*.json
