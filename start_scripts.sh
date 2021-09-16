@@ -1,13 +1,21 @@
 export GOOGLE_APPLICATION_CREDENTIALS="service-account.json";
 
-./target/release/get_contest_goals > get_contest_goals.log &
+KILL_SCRIPT="kill "
+RUST_LOG=get_contest_goals=debug ./target/release/get_contest_goals > get_contest_goals.log 2>&1 &
+KILL_SCRIPT="$KILL_SCRIPT $!"
 echo "Started gettings contest goals"
 
-./target/release/get_dogs > get_dogs.log &
+RUST_LOG=get_dogs=debug ./target/release/get_dogs > get_dogs.log 2>&1 &
+KILL_SCRIPT="$KILL_SCRIPT $!"
 echo "Started getting dogs"
 
-./target/release/upload_files > upload_files.log &
+RUST_LOG=upload_files=debug ./target/release/upload_files > upload_files.log 2>&1 &
+KILL_SCRIPT="$KILL_SCRIPT $!"
 echo "Started upload files to google cloud storage"
 
-./target/release/api > api.log &
+RUST_LOG=api=debug ./target/release/api > api.log 2>&1 &
+KILL_SCRIPT="$KILL_SCRIPT $!"
 echo "Started the web server"
+
+echo $KILL_SCRIPT > kill_scripts.sh
+chmod +x kill_scripts.sh

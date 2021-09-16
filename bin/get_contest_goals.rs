@@ -8,11 +8,13 @@ use tokio::time::{interval, Duration};
 
 use nipper::Document;
 
+use log::info;
+
 async fn crawl_site(domain: &str, contest: Contest) -> Result<ContestData, Box<dyn Error>> {
     // navigate to the search page for the contest,
     // this is where we will grab the top tep results
     let url = format!("{}/{}", domain, contest.page);
-    println!("[INFO] getting url; url={:?}", &url);
+    info!("getting url; url={:?}", &url);
 
     // get the webapge html
     let resp  = reqwest::get(&url).await?;
@@ -82,13 +84,14 @@ async fn get_entries(contest_url: &str) -> Result<usize, Box<dyn Error>> {
 // lets do some web crawling!
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
+    env_logger::init();
     let domain = "https://www.gogophotocontest.com";
 
     // Do this every minute!
     let mut interval = interval(Duration::from_secs(60));
     loop {
         interval.tick().await;
-        println!("[TICK]");
+        info!("tick");
 
         let mut results: Vec<ContestData> = Vec::new();
         for contest in Contests::get_all() {
@@ -111,6 +114,6 @@ async fn main() -> Result<(), Box<dyn Error>> {
         csv_wtr.flush()?;
 
         std::fs::write("contest-goals.json", serialized)?;
-        println!("[DONE]");
+        info!("done");
     }
 }
