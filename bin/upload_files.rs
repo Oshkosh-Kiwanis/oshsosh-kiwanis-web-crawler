@@ -46,16 +46,46 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
         let top_dog_filename = format!("top-dogs-{}.csv", Utc::now().timestamp());
         let contest_goals_filename = format!("contest-goals-{}.csv", Utc::now().timestamp());
-        client.object().create(bucket, dogs_file_buf, &top_dog_filename, mime_type).await?;
-        info!("Upload successful; file={}", top_dogs_file);
-        client.object().create(bucket, contests_file_buf, &contest_goals_filename, mime_type).await?;
-        info!("Upload successful; file={}", contest_goals_file);
+
+        // We are getting connection error thats originate from google cloud itself so we have to
+        // make this able to handle those errors and just try again when it can instead of just
+        // panicing
+        match client.object().create(bucket, dogs_file_buf, &top_dog_filename, mime_type).await {
+            Ok(_) => {
+                info!("Upload successful; file={}", top_dogs_file);
+            },
+            Err(e) => {
+                error!("Unable to upload file; file={}; error={}", &top_dog_filename, e);
+            }
+        };
+
+        match client.object().create(bucket, contests_file_buf, &contest_goals_filename, mime_type).await {
+            Ok(_) => {
+                info!("Upload successful; file={}", contest_goals_file);
+            },
+            Err(e) => {
+                error!("Unable to upload file; file={}; error={}", &top_dog_filename, e);
+            }
+        };
 
         // we don't really care if the remove file fails
-        let _ = std::fs::remove_file(top_dogs_file);
-        info!("Removed file; file={}", top_dogs_file);
-        let _ = std::fs::remove_file(contest_goals_file);
-        info!("Removed file; file={}", contest_goals_file);
+        match std::fs::remove_file(top_dogs_file) {
+            Ok(_) => {
+                info!("Removed file; file={}", top_dogs_file);
+            },
+            Err(e) => {
+                error!("Unable to remove file; file={}; error={}", &top_dogs_file, e);
+            }
+        };
+
+        match std::fs::remove_file(contest_goals_file) {
+            Ok(_) => {
+                info!("Removed file; file={}", contest_goals_file);
+            },
+            Err(e) => {
+                error!("Unable to remove file; file={}; error={}", &contest_goals_file, e);
+            }
+        };
 
         info!("done");
     }
