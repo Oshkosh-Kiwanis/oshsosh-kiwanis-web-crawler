@@ -35,6 +35,23 @@ async fn crawl_entry_page(domain: &str, webpage: &str, contest: Contest) -> Resu
         .parse()
         .unwrap_or(0);
 
+    let raised: usize = doc.select("#ContentPlaceHolder_divRaised > span")
+        .text()
+        .chars()
+        // make sure that we are only dealing with valid numerical
+        // representation before trying to parse it
+        .filter(|ch| ch.is_digit(10) || *ch == '.')
+        .collect::<String>()
+        .parse()
+        .unwrap_or(0);
+
+    let category = doc.select("#ContentPlaceHolder_divEntryCategory")
+        .text()
+        .to_string()
+        .replace("Entry Category:", "")
+        .trim()
+        .to_string();
+
     debug!("selected votes; votes={}", votes);
 
     let picture: String = doc.select("#ContentPlaceHolder_imgEntry")
@@ -50,7 +67,9 @@ async fn crawl_entry_page(domain: &str, webpage: &str, contest: Contest) -> Resu
     Ok(EntryData {
         dog,
         votes,
+        raised,
         contest,
+        category,
         page: String::from(webpage),
         picture: format!("{}{}", domain, picture),
         timestamp,
@@ -74,7 +93,7 @@ async fn crawl_site(domain: &str, contest: Contest) -> Result<Vec<EntryData>, Bo
     // go through each of the dogs on the leaderboard of the page
     let mut entry_pages: Vec<String> = vec![];
     let mut dogs = vec![];
-    doc.select("#ContentPlaceHolder_upPanel .searchEntryCont a.searchEntry").iter().take(10).for_each(|entry_link| {
+    doc.select("#ContentPlaceHolder_upPanel .searchEntryCont a.searchEntry").iter().take(contest.num_dogs).for_each(|entry_link| {
         if let Some(entry_link_str) = entry_link.attr("href") {
             debug!("selected entry; entry_url={}", entry_link_str);
             // navigate to the entry page for easier parsindefaultg
