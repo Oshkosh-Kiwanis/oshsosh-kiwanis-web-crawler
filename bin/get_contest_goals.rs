@@ -2,22 +2,31 @@
 use std::{convert::TryFrom, error::Error};
 
 use chrono::Utc;
+<<<<<<< HEAD
 use oshkosh_kiwanis_web_crawler::{Contest, ContestData, ContestDataCSV, Contests, EntryData};
+=======
+use reqwest::Client;
+use oshkosh_kiwanis_web_crawler::{Contest, ContestData, ContestDataCSV, Contests};
+>>>>>>> 5de5aec301a1fa2790f420e02d80dfdedb772b02
 
 use tokio::time::{interval, Duration};
 
 use nipper::Document;
 
+<<<<<<< HEAD
 use log::{error, info, warn};
+=======
+use log::{info, error};
+>>>>>>> 5de5aec301a1fa2790f420e02d80dfdedb772b02
 
-async fn crawl_site(domain: &str, contest: Contest) -> Result<ContestData, Box<dyn Error>> {
+async fn crawl_site(client: &Client, domain: &str, contest: Contest) -> Result<ContestData, Box<dyn Error>> {
     // navigate to the search page for the contest,
     // this is where we will grab the top tep results
     let url = format!("{}/{}", domain, contest.page);
     info!("getting url; url={:?}", &url);
 
     // get the webapge html
-    let resp  = reqwest::get(&url).await?;
+    let resp  = client.get(&url).send().await?;
     let html = resp.text().await?;
 
     // now we have to parse that html
@@ -43,7 +52,7 @@ async fn crawl_site(domain: &str, contest: Contest) -> Result<ContestData, Box<d
         .parse::<usize>()
         .unwrap_or(0);
 
-    let total_entries = get_entries(&url).await?;
+    let total_entries = get_entries(client, &url).await?;
 
     let champ_day = contest.champ_day;
     let now = Utc::now();
@@ -58,10 +67,10 @@ async fn crawl_site(domain: &str, contest: Contest) -> Result<ContestData, Box<d
     })
 }
 
-async fn get_entries(contest_url: &str) -> Result<usize, Box<dyn Error>> {
+async fn get_entries(client: &Client, contest_url: &str) -> Result<usize, Box<dyn Error>> {
     // get the webapge html
     let entries_url = format!("{}/search", &contest_url);
-    let resp  = reqwest::get(entries_url).await?;
+    let resp  = client.get(entries_url).send().await?;
     let html = resp.text().await?;
 
     // now we have to parse that html
@@ -87,15 +96,27 @@ async fn main() -> Result<(), Box<dyn Error>> {
     env_logger::init();
     let domain = "https://www.gogophotocontest.com";
 
+    let client = reqwest::ClientBuilder::new()
+        .timeout(Duration::from_secs(30))
+        .build()?;
+
     // Do this every minute!
     let mut interval = interval(Duration::from_secs(60));
-    loop {
+    'outer: loop {
         interval.tick().await;
         info!("tick");
 
         let mut results: Vec<ContestData> = Vec::new();
         for contest in Contests::get_all() {
-            let ret = crawl_site(domain, contest).await?;
+            let ret = match crawl_site(&client, domain, contest).await {
+                Ok(res) => res,
+                Err(e) => {
+                    error!("Unable to crawl site; domain={}; error={}", domain, e);
+                    // we encountered an error so lets skip this iteration instead
+                    // of just skipping this contest
+                    continue 'outer;
+                }
+            };
 
             results.push(ret);
         }
