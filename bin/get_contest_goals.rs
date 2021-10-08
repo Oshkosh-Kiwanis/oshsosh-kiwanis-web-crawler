@@ -2,22 +2,14 @@
 use std::{convert::TryFrom, error::Error};
 
 use chrono::Utc;
-<<<<<<< HEAD
 use oshkosh_kiwanis_web_crawler::{Contest, ContestData, ContestDataCSV, Contests, EntryData};
-=======
 use reqwest::Client;
-use oshkosh_kiwanis_web_crawler::{Contest, ContestData, ContestDataCSV, Contests};
->>>>>>> 5de5aec301a1fa2790f420e02d80dfdedb772b02
 
 use tokio::time::{interval, Duration};
 
 use nipper::Document;
 
-<<<<<<< HEAD
 use log::{error, info, warn};
-=======
-use log::{info, error};
->>>>>>> 5de5aec301a1fa2790f420e02d80dfdedb772b02
 
 async fn crawl_site(client: &Client, domain: &str, contest: Contest) -> Result<ContestData, Box<dyn Error>> {
     // navigate to the search page for the contest,
