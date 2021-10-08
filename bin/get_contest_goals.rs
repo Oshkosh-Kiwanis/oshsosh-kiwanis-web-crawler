@@ -2,14 +2,22 @@
 use std::{convert::TryFrom, error::Error};
 
 use chrono::Utc;
+<<<<<<< HEAD
+use oshkosh_kiwanis_web_crawler::{Contest, ContestData, ContestDataCSV, Contests, EntryData};
+=======
 use reqwest::Client;
 use oshkosh_kiwanis_web_crawler::{Contest, ContestData, ContestDataCSV, Contests};
+>>>>>>> 5de5aec301a1fa2790f420e02d80dfdedb772b02
 
 use tokio::time::{interval, Duration};
 
 use nipper::Document;
 
+<<<<<<< HEAD
+use log::{error, info, warn};
+=======
 use log::{info, error};
+>>>>>>> 5de5aec301a1fa2790f420e02d80dfdedb772b02
 
 async fn crawl_site(client: &Client, domain: &str, contest: Contest) -> Result<ContestData, Box<dyn Error>> {
     // navigate to the search page for the contest,
@@ -112,6 +120,31 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
             results.push(ret);
         }
+
+        // champ day sync
+
+        // read the top dogs json file
+        if let Ok(top_dogs_content) = std::fs::read_to_string("top-dogs.json") {
+            let top_dogs: Vec<EntryData> = serde_json::from_str(&top_dogs_content)?;
+
+            for dog in top_dogs.iter().filter(|dog| dog.category != "") {
+                if let Some(contest) = Contests::from_category(&dog.category) {
+                    let found_idx = results.iter().position(|c| c.contest == contest);
+
+                    if let Some(contest_idx) = found_idx {
+                        results[contest_idx].champ_day += dog.raised;
+                        info!("Added champ day amount to contest; amount={}; contest={}", &dog.raised, &contest.page);
+                    } else {
+                        warn!("Unable to find contest for dog; dog={}; category={}", &dog.dog, &dog.category);
+                    }
+                } else {
+                    warn!("Unable to match dog with contest; dog={}; category={}", &dog.dog, &dog.category);
+                }
+            }
+        } else {
+            error!("Unable to read top dogs file");
+        }
+
 
         // write the results to a json file
         let serialized = serde_json::to_string(
