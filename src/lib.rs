@@ -58,98 +58,94 @@ impl Contests {
     pub fn get_all() -> Vec<Contest> {
         Vec::from([
             Contest {
-                display_name: "NEW Top Dog Appleton".into(),
-                page: "newtopdogappleton2022".into(),
+                display_name: "Lakeshore Humane Society's NEW Top Dog Fall 2022".into(),
+                page: "newtopdoglakeshorefall2022".into(),
                 champ_day: 0,
                 num_dogs: 15,
             },
             Contest {
-                display_name: "NEW Top Dog Green Bay".into(),
-                page: "newtopdoggreenbay2022".into(),
+                display_name: "Misfit Mutts's NEW Top Dog Fall 2022".into(),
+                page: "newtopdogmisfitfall2022".into(),
                 champ_day: 0,
                 num_dogs: 15,
             },
             Contest {
-                display_name: "NEW Top Dog Lakeshore".into(),
-                page: "newtopdoglakeshore2022".into(),
+                display_name: "Neenah's NEW Top Dog Fall 2022".into(),
+                page: "newtopdogneenahfall2022".into(),
                 champ_day: 0,
                 num_dogs: 15,
             },
             Contest {
-                display_name: "NEW Top Dog Neenah".into(),
-                page: "newtopdogneenah2022".into(),
+                display_name: "Mit Liebe's NEW Top Dog Fall 2022".into(),
+                page: "newtopdogmitliebefall2022".into(),
                 champ_day: 0,
                 num_dogs: 15,
             },
             Contest {
-                display_name: "NEW Top Dog Oshkosh".into(),
-                page: "newtopdogoshkosh2022".into(),
+                display_name: "Oshkosh's NEW Top Dog Fall 2022".into(),
+                page: "newtopdogoahsfall2022".into(),
                 champ_day: 0,
                 num_dogs: 15,
             },
             Contest {
-                display_name: "NEW Top Dog Shawano".into(),
-                page: "newtopdogshawano2022".into(),
+                display_name: "Sandi Paws's NEW Top Dog Fall 2022".into(),
+                page: "newtopdogsandipawsfall2022".into(),
                 champ_day: 0,
                 num_dogs: 15,
-            },
-            Contest {
-                display_name: "NEW Top Dog Championship".into(),
-                page: "newtopdogchampionship2022".into(),
-                champ_day: 0,
-                num_dogs: 60,
-            },
+            }
         ])
     }
 
     pub fn from_category(category: &str) -> Option<Contest> {
         let category = category.to_lowercase();
 
-        if category.contains("appleton") {
-            return Some(Contest {
-                display_name: "NEW Top Dog Appleton".into(),
-                page: "newtopdogappleton2022".into(),
+        let mut ret: Option<Contest> = None;
+
+        if category.contains("lakeshore") {
+            ret = Some(Contest {
+                display_name: "Lakeshore Humane Society's NEW Top Dog Fall 2022".into(),
+                page: "newtopdoglakeshorefall2022".into(),
                 champ_day: 0,
                 num_dogs: 15,
             });
-        } else if category.contains("green bay") {
-            return Some(Contest {
-                display_name: "NEW Top Dog Green Bay".into(),
-                page: "newtopdoggreenbay2022".into(),
-                champ_day: 0,
-                num_dogs: 15,
-            });
-        } else if category.contains("lakeshore") {
-            return Some(Contest {
-                display_name: "NEW Top Dog Lakeshore".into(),
-                page: "newtopdoglakeshore2022".into(),
+        } else if category.contains("misfit mutt") {
+            ret = Some(Contest {
+                display_name: "Misfit Mutts's NEW Top Dog Fall 2022".into(),
+                page: "newtopdogmisfitfall2022".into(),
                 champ_day: 0,
                 num_dogs: 15,
             });
         } else if category.contains("neenah") {
-            return Some(Contest {
-                display_name: "NEW Top Dog Neenah".into(),
-                page: "newtopdogneenah2022".into(),
+            ret = Some(Contest {
+                display_name: "Neenah's NEW Top Dog Fall 2022".into(),
+                page: "newtopdogneenahfall2022".into(),
                 champ_day: 0,
                 num_dogs: 15,
             });
-        } else if category.contains("oshkosh") {
-            return Some(Contest {
-                display_name: "NEW Top Dog Oshkosh".into(),
-                page: "newtopdogoshkosh2022".into(),
+        } else if category.contains("mit liebe") {
+            ret = Some(Contest {
+                display_name: "Mit Liebe's NEW Top Dog Fall 2022".into(),
+                page: "newtopdogmitliebefall2022".into(),
                 champ_day: 0,
                 num_dogs: 15,
             });
-        } else if category.contains("shawano") {
-            return Some(Contest {
-                display_name: "NEW Top Dog Shawano".into(),
-                page: "newtopdogshawano2022".into(),
+        } else if category.contains("oshskosh") {
+            ret = Some(Contest {
+                display_name: "Oshkosh's NEW Top Dog Fall 2022".into(),
+                page: "newtopdogoahsfall2022".into(),
+                champ_day: 0,
+                num_dogs: 15,
+            });
+        } else if category.contains("sandi paw") {
+            ret = Some(Contest {
+                display_name: "Sandi Paws's NEW Top Dog Fall 2022".into(),
+                page: "newtopdogsandipawsfall2022".into(),
                 champ_day: 0,
                 num_dogs: 15,
             });
         }
 
-        None
+        ret
     }
 }
 
