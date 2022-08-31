@@ -57,8 +57,7 @@ async fn crawl_entry_page(client: &Client, domain: &str, webpage: &str, contest:
 
     let picture: String = doc.select("#ContentPlaceHolder_imgEntry")
         .attr("src")
-        .unwrap()
-        .to_string();
+        .map_or(String::from(""), |v| v.to_string());
 
     debug!("selected picture; picture={}", picture);
 

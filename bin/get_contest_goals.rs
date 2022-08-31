@@ -24,7 +24,7 @@ async fn crawl_site(client: &Client, domain: &str, contest: Contest) -> Result<C
     // now we have to parse that html
     let doc = Document::try_from(&html)?;
 
-    let raised = doc.select("#ContentPlaceHolder_divFundraisingMeter > div.raised > span")
+    let raised = doc.select("#ContentPlaceHolder_divFundraisingMeter > div > span")
         .text()
         .chars()
         // make sure that we are only dealing with valid numerical
