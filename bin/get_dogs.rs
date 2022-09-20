@@ -148,15 +148,27 @@ async fn main() -> Result<(), Box<dyn Error>> {
             results.extend(ret);
         }
 
-        let mut csv_wtr = csv::Writer::from_path("top-dogs.csv")?;
+        results.sort_by(|a: &EntryData, b: &EntryData| b.votes.cmp(&a.votes));
 
-        for result in results.iter() {
+        let mut csv_wtr = csv::Writer::from_path("top-dogs.csv")?;
+        let mut csv_wtr_global_leaderboard = csv::Writer::from_path("global-leaderboard.csv")?;
+
+
+        for (i, result) in results.iter().enumerate() {
             let record = EntryDataCSV::from_entry(result);
-            csv_wtr.serialize(record)?;
+
+            // add the top 15 to the global leaderboard
+            if i <= 15 {
+                csv_wtr.serialize(record.clone())?;
+                csv_wtr_global_leaderboard.serialize(record)?;
+            } else {
+                csv_wtr.serialize(record)?;
+            }
         }
         csv_wtr.flush()?;
 
         debug!("wrote csv file; file=top-dogs.csv");
+        debug!("wrote csv file; file=global-leaderboard.csv");
 
         // write the results to a json file
         let serialized = serde_json::to_string(
@@ -165,6 +177,15 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
         std::fs::write("top-dogs.json", serialized)?;
         debug!("wrote json file; file=top-dogs.json");
+
+        // write the results to the global leaderboard json file
+        let serialized_global_leaderboard = serde_json::to_string(
+            &results
+        )?;
+
+        std::fs::write("global-leaderboard.json", serialized_global_leaderboard)?;
+        debug!("wrote json file; file=global-leaderboard.json");
+
         info!("done");
     }
 }
