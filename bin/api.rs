@@ -15,6 +15,12 @@ async fn get_dogs(_path: web::Path<()>) -> impl Responder {
     std::fs::read_to_string("top-dogs.json").unwrap_or("".into())
 }
 
+#[get("/leaderboard")]
+async fn get_leaderboard(_path: web::Path<()>) -> impl Responder {
+    info!("handling leaderboard;");
+    std::fs::read_to_string("global-leaderboard.json").unwrap_or("".into())
+}
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     env_logger::init();
