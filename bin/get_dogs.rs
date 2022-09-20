@@ -151,24 +151,14 @@ async fn main() -> Result<(), Box<dyn Error>> {
         results.sort_by(|a: &EntryData, b: &EntryData| b.votes.cmp(&a.votes));
 
         let mut csv_wtr = csv::Writer::from_path("top-dogs.csv")?;
-        let mut csv_wtr_global_leaderboard = csv::Writer::from_path("global-leaderboard.csv")?;
 
-
-        for (i, result) in results.iter().enumerate() {
+        for result in results.iter() {
             let record = EntryDataCSV::from_entry(result);
-
-            // add the top 15 to the global leaderboard
-            if i <= 15 {
-                csv_wtr.serialize(record.clone())?;
-                csv_wtr_global_leaderboard.serialize(record)?;
-            } else {
-                csv_wtr.serialize(record)?;
-            }
+            csv_wtr.serialize(record)?;
         }
         csv_wtr.flush()?;
 
         debug!("wrote csv file; file=top-dogs.csv");
-        debug!("wrote csv file; file=global-leaderboard.csv");
 
         // write the results to a json file
         let serialized = serde_json::to_string(
