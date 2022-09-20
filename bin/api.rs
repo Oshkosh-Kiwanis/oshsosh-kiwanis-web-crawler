@@ -35,6 +35,7 @@ async fn main() -> std::io::Result<()> {
                 .wrap(cors)
                 .service(get_goals)
                 .service(get_dogs)
+                .service(get_leaderboard)
         }
     )
         .bind(addr)?
