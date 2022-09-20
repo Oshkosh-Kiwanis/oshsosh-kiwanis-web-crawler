@@ -180,7 +180,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
         // write the results to the global leaderboard json file
         let serialized_global_leaderboard = serde_json::to_string(
-            &results
+            &results.into_iter().take(15).collect::<Vec<EntryData>>()
         )?;
 
         std::fs::write("global-leaderboard.json", serialized_global_leaderboard)?;
