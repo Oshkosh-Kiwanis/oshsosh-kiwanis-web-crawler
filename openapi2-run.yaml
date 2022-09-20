@@ -2,7 +2,7 @@ swagger: "2.0"
 info:
   title: New top dog API
   description: Get info on the new top dog contests
-  version: 1.0.0
+  version: 2.0.0
 host: new-top-dog-api.apigateway.oshkosh-kiwanis.cloud.goog
 basePath: /v1
 schemes:
@@ -25,6 +25,17 @@ paths:
       operationId: goals
       x-google-backend:
         address: http://api.new-top-dog.timios.dev:8080/goals
+      responses:
+        200:
+          description: OK
+          schema:
+            type: string
+  /global/leaderboard:
+    get:
+      summary: Get the leaderboard across all contests
+      operationId: leaderboard
+      x-google-backend:
+        address: http://api.new-top-dog.timios.dev:8080/leaderboard
       responses:
         200:
           description: OK
